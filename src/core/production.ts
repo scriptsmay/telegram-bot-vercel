@@ -25,6 +25,15 @@ const production = async (
     throw new Error('VERCEL_URL is not set.');
   }
 
+  const getWebhookInfo = await bot.telegram.getWebhookInfo();
+  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
+    debug(`deleting webhook ${VERCEL_URL}`);
+    await bot.telegram.deleteWebhook();
+    debug(`setting webhook: ${VERCEL_URL}/api`);
+    await bot.telegram.setWebhook(`${VERCEL_URL}/api`);
+  }
+
+  // /api/send 这个接入点用于接收来自其他服务的消息
   if (req.url?.substring(0, 9) == '/api/send') {
     const text = req.query?.text || req.body?.text || '';
     const sendkey = req.query?.sendkey || req.body?.sendkey || '';
@@ -39,7 +48,7 @@ const production = async (
       if (key_info[1] != md5(TCKEY + key_info[0])) {
         throw new Error('sendkey error');
       } else {
-        var params = new URLSearchParams();
+        let params = new URLSearchParams();
         params.append('chat_id', String(key_info[0]));
         let content = String(text) + '\n\n' + String(desp);
         if (markdown != '') {
@@ -56,14 +65,8 @@ const production = async (
         res.status(200).json(ret.data);
       }
     }
-  }
-
-  const getWebhookInfo = await bot.telegram.getWebhookInfo();
-  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
-    debug(`deleting webhook ${VERCEL_URL}`);
-    await bot.telegram.deleteWebhook();
-    debug(`setting webhook: ${VERCEL_URL}/api`);
-    await bot.telegram.setWebhook(`${VERCEL_URL}/api`);
+    // 截流
+    return;
   }
 
   if (req.method === 'POST') {
