@@ -16,6 +16,10 @@ bot.on('message', greeting());
 
 //prod mode (Vercel)
 export const startVercel = async (req: VercelRequest, res: VercelResponse) => {
+  if (req.url == '/favicon.ico') {
+    res.status(200).end();
+    return;
+  }
   await production(req, res, bot);
 };
 //dev mode
