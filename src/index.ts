@@ -10,7 +10,8 @@ const ENVIRONMENT = process.env.NODE_ENV || '';
 
 const bot = new Telegraf(BOT_TOKEN);
 
-bot.command('about', about()).command('sendkey', sendkey());
+bot.command('about', about());
+bot.command('sendkey', sendkey());
 bot.on('message', greeting());
 
 //prod mode (Vercel)
