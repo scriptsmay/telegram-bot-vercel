@@ -3,15 +3,15 @@ import createDebug from 'debug';
 import { Context, Telegraf } from 'telegraf';
 import { Update } from 'telegraf/typings/core/types/typegram';
 import axios from 'axios';
+import { createHash } from 'crypto';
 
 const debug = createDebug('bot:dev');
 
 const PORT = (process.env.PORT && parseInt(process.env.PORT, 10)) || 3000;
-const VERCEL_URL = `${process.env.VERCEL_URL}`;
+const VERCEL_URL = process.env.DOMAIN_URL || process.env.VERCEL_URL || '';
 const TCKEY = process.env.TCKEY || '';
 const BOT_TOKEN = process.env.BOT_TOKEN || '';
-const md5 = require('md5');
-
+const md5 = (str: string) => createHash('md5').update(str).digest('hex');
 
 const production = async (
   req: VercelRequest,
@@ -19,19 +19,6 @@ const production = async (
   bot: Telegraf<Context<Update>>,
 ) => {
   debug('Bot runs in production mode');
-  debug(`setting webhook: ${VERCEL_URL}`);
-
-  if (!VERCEL_URL) {
-    throw new Error('VERCEL_URL is not set.');
-  }
-
-  const getWebhookInfo = await bot.telegram.getWebhookInfo();
-  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
-    debug(`deleting webhook ${VERCEL_URL}`);
-    await bot.telegram.deleteWebhook();
-    debug(`setting webhook: ${VERCEL_URL}/api`);
-    await bot.telegram.setWebhook(`${VERCEL_URL}/api`);
-  }
 
   // /api/send 这个接入点用于接收来自其他服务的消息
   if (req.url?.substring(0, 9) == '/api/send') {
@@ -43,7 +30,7 @@ const production = async (
     if (text == '' || sendkey == '') {
       throw new Error('text & sendkey cannot be empty');
     } else {
-      const key_info: String[] = String(sendkey).split('T');
+      const key_info: string[] = String(sendkey).split('T');
 
       if (key_info[1] != md5(TCKEY + key_info[0])) {
         throw new Error('sendkey error');
@@ -67,6 +54,20 @@ const production = async (
     }
     // 截流
     return;
+  }
+
+  debug(`setting webhook: ${VERCEL_URL}`);
+
+  if (!VERCEL_URL) {
+    throw new Error('VERCEL_URL is not set.');
+  }
+
+  const getWebhookInfo = await bot.telegram.getWebhookInfo();
+  if (getWebhookInfo.url !== VERCEL_URL + '/api') {
+    debug(`deleting webhook ${VERCEL_URL}`);
+    await bot.telegram.deleteWebhook();
+    debug(`setting webhook: ${VERCEL_URL}/api`);
+    await bot.telegram.setWebhook(`${VERCEL_URL}/api`);
   }
 
   if (req.method === 'POST') {

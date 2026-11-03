@@ -1,8 +1,9 @@
 import { Context } from 'telegraf';
 import createDebug from 'debug';
+import { createHash } from 'crypto';
 
-const debug = createDebug('bot:greeting_text');
-const md5 = require('md5');
+const debug = createDebug('bot:sendkey_command');
+const md5 = (str: string) => createHash('md5').update(str).digest('hex');
 const VERCEL_URL = process.env.DOMAIN_URL || process.env.VERCEL_URL || '';
 const TCKEY = process.env.TCKEY || '';
 

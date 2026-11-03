@@ -17,9 +17,13 @@ const greeting = () => async (ctx: Context) => {
     : ctx.from?.first_name;
 
   if (messageId) {
-    await replyToMessage(ctx, messageId, `Hello, ${userName}!
+    await replyToMessage(
+      ctx,
+      messageId,
+      `Hello, ${userName}!
        Welcome to TeleChan, type /sendkey to get your sendkey and api url
-      `);
+      `,
+    );
   }
 };
 
