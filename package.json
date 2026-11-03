@@ -6,9 +6,9 @@
   "author": "Scriptsmay (https://github.com/scriptsmay)",
   "homepage": "https://github.com/scriptsmay/telegram-bot-vercel",
   "dependencies": {
-    "@vercel/node": "^2.10.3",
+    "@vercel/node": "^5.1.16",
     "axios": "^1.7.7",
-    "dotenv-cli": "^7.4.2",
+    "dotenv-cli": "^8.0.0",
     "md5": "^2.3.0",
     "telegraf": "^4.16.3"
   },
